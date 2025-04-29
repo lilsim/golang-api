@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Article struct {
-	Title   string `json:"title"`
+	Title   string `json:"Title"`
 	Desc    string `json:"desc"`
 	Content string `json:"content"`
 }
@@ -24,20 +26,21 @@ func allArticles(w http.ResponseWriter, r *http.Request) {
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
+	fmt.Fprint(w, "Endpoint Hit: homePage")
 }
-
+func testPostArticles(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Test if POST Endpoint worked")
+}
 func handleRequests() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/articles", allArticles)
-	log.Fatal(http.ListenAndServe(":8081", nil))
+
+	myRouter := mux.NewRouter().StrictSlash(true)
+
+	myRouter.HandleFunc("/", homePage)
+	myRouter.HandleFunc("/articles", allArticles).Methods("GET")
+	myRouter.HandleFunc("/articles", testPostArticles).Methods("POST")
+	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
 
 func main() {
-	// Articles = []Article{
-	// 	Article{Id: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
-	// 	Article{Id: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
-	// }
 	handleRequests()
 }
